@@ -1,2 +1,75 @@
 chapter1  Routing
 
+routes are defined in rroutes/web.php
+
+like
+	Route::get('/', function () {
+    		return view('welcome');                     //this route of home page ,url='/'
+	}); 
+
+Route with controller
+______________________
+
+	Route::get('profile', [ProfileController::class, 'show']);
+
+	or
+	Route::get('profile','ProfileController@show');
+
+
+
+
+Route Naming(reverse routing)
+______________
+
+	// Defining a named route
+		Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+	// Generating URL using route name
+		$url = route('dashboard');
+
+	// Redirecting to named route
+		return redirect()->route('dashboard');
+
+
+
+
+
+
+Route Groups
+_________________
+
+	// Grouping routes with a prefix
+		Route::prefix('admin')->group(function () {
+    			Route::get('/dashboard', [AdminController::class, 'dashboard']);
+   			 Route::get('/profile', [AdminController::class, 'profile']);
+		});
+
+OR
+
+		Route::group(['prefix'=>'admin'],function(){
+
+			Route::get('profile','ProfileController@show');
+			Route::get('profile1','ProfileController@show1');
+
+
+		})		//here the url like http://127.0.0.1:8000/admin/profile and http://127.0.0.1:8000/admin/profile1
+
+
+		
+		Route::group(['prefix'=>'admin','as'=>'user.'],function(){
+
+			Route::get('profile','ProfileController@show')->name(profile);
+			Route::get('profile1','ProfileController@show1')->name(profile1);
+
+		})	//here the url like http://127.0.0.1:8000/admin/profile   and name=user.profile
+
+
+
+
+		// Grouping routes with middleware
+			Route::middleware(['auth'])->group(function () {
+   			 	Route::get('/account', [AccountController::class, 'index']);
+			});
+
+
+
