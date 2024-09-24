@@ -71,5 +71,77 @@ OR
    			 	Route::get('/account', [AccountController::class, 'index']);
 			});
 
+Migrations
+____________
+	
+	database related settings are done in config->database.php
+	
+	In database.php all setting values are taken .env file
+	
+	
+	command to create a table : php artisan make:migration create_new_table --create= table_name	
+	
+	
+	migration file
+	_________________
+	
+	public function up()
+    {
+        Schema::create('your_table_name', function (Blueprint $table) {
+            $table->id(); // Automatically creates an auto-incrementing primary key
+            $table->string('name'); // Example column for a string
+            $table->text('description')->nullable(); // Example nullable text column
+            $table->integer('age'); // Example integer column
+            $table->boolean('is_active')->default(true); // Example boolean column with default value
+            $table->timestamps(); // Adds created_at and updated_at columns
+        });
+    }
 
+	public function down()
+    {
+        Schema::dropIfExists('your_table_name');
+
+    }
+
+In colum creation
+___________________
+
+		public function up()
+		{
+    			Schema::table('table_name', function (Blueprint $table) {
+        		$table->string('new_column')->nullable();
+        		// Add other columns here if needed
+			}
+    		});
+		
+	
+	`php artisan migrate:fresh	
+
+
+
+
+Seeder
+________
+
+php artisan make:seeder seedr_name
+
+to seed data through Model
+eg: 
+
+	use App\Models\User;
+
+	class testSeeder extends Seeder
+	{
+    
+    		public function run()
+    		{
+        	User::create([
+            	'name' => 'test',
+            	'email' => 'test@test.com',
+            	'password' => 'testpsw',
+        		]);
+    		}
+	}
+	
+to run the seeder :php artian db:seed --class=testSeeder
 
