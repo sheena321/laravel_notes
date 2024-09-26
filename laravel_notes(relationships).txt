@@ -1,0 +1,132 @@
+Relationship in laravel
+_____________________________
+a)One-to-One
+	- hasOne()
+		//User Model
+		Public function profile()
+		{
+    			return $this->hasOne(Profile::class);
+		}
+
+		
+	- belongsTo() //inverse
+	
+		// Profile Model
+		public function user()
+		{
+    			return $this->belongsTo(User::class);
+		}
+	Difference
+	____________
+	hasOne is used in the model that owns or initiates the relationship.
+	belongsTo is used in the model that is the dependent or child in the relationship, meaning it has the foreign key referencing the owning model.
+	
+b)One-to-Many Relationship
+	- hasMany()
+		
+		// Post Model
+		public function comments()
+		{
+    			return $this->hasMany(Comment::class);
+		}
+	- belongsTo()
+
+		// Comment Model
+		public function post()
+		{
+    			return $this->belongsTo(Post::class);
+		}
+	
+c)Many-to-Many Relationship
+
+	A User can belong to many Roles, and a Role can be assigned to many Users.
+	
+	 $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');  //this is creating table roles ,for column user_id(foreign key, ie  id of user table)
+    	 $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');   //this is creating table user ,for column role_id(foreign key, ie  id of role table)
+
+	// User Model
+	public function roles()
+	{
+    		return $this->belongsToMany(Role::class); 
+    		 return $this->belongsToMany(Role::class)->select(['id', 'name']); // i need to select only id and name
+	}
+
+	// Role Model
+	public function users()
+	{
+    		return $this->belongsToMany(User::class);
+	}
+	
+	
+	In a many-to-many relationship, we use belongsToMany() on both sides of the relationship (in both the User and Role models) to tell Laravel that these two models are
+	related	 through a pivot table.
+	
+	In Laravel, pivot tables are essential for defining many-to-many relationships using the belongsToMany() relationship.
+	
+		php artisan make:migration create_role_user_table --create=role_user //command to create a pivot table
+		
+	Then, define the pivot table schema in the migration:
+
+		Schema::create('role_user', function (Blueprint $table) {
+    		$table->id();
+    		$table->unsignedBigInteger('user_id');
+    		$table->unsignedBigInteger('role_id');
+    		$table->timestamps(); // Optional
+
+    		// Foreign keys
+    		$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+    		$table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
+		});
+		
+d)Has One Through Relationship
+	A has-one-through relationship links models indirectly through an intermediate relation.
+
+	Example:
+		A Country has one User, which has one Post.
+
+	Migration:
+
+		Schema::create('countries', function (Blueprint $table) {
+    			$table->id();
+    			$table->string('name');
+    			$table->timestamps();
+		});
+
+		Schema::create('users', function (Blueprint $table) {
+    			$table->id();
+    			$table->unsignedBigInteger('country_id');
+    			$table->string('name');
+    			$table->timestamps();
+
+    			$table->foreign('country_id')->references('id')->on('countries')->onDelete('cascade');
+		});
+
+		Schema::create('posts', function (Blueprint $table) {
+    			$table->id();
+    			$table->unsignedBigInteger('user_id');
+    			$table->string('title');
+    			$table->timestamps();
+
+    			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+		});
+	Models:
+
+		// Country Model
+		public function post()
+		{
+    			return $this->hasOneThrough(Post::class, User::class);
+		}
+e)Has Many Through Relationship
+		This relationship is similar to hasOneThrough but is used for many records.
+
+	Example:
+		A Country has many Posts through Users.
+
+		Models:
+
+		// Country Model
+		public function posts()
+		{
+    			return $this->hasManyThrough(Post::class, User::class);
+		}
+	- 
