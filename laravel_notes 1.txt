@@ -145,3 +145,102 @@ eg:
 	
 to run the seeder :php artian db:seed --class=testSeeder
 
+
+
+Factories
+____________
+
+which  iis used to stor bulk fake datas in DB,factories are created in rlation with a model
+
+1)create model( model name beguns with capital letter) // php artisan make:Model Post
+2)creat seedr   php arisan make:seeder Postseeder
+3)create factory php artisan make:factory PostFactory
+
+		// database/factories/PostFactory.php
+			use App\Models\Post;
+			use Illuminate\Database\Eloquent\Factories\Factory;
+
+			class PostFactory extends Factory
+			{
+   				 // Specify the model associated with this factory
+    				protected $model = Post::class;
+
+    				public function definition()
+    				{
+        				return [
+            					'title' => $this->faker->sentence(),
+            					'content' => $this->faker->paragraph(),
+        					];
+    				}
+			}
+
+
+
+
+		// database/seeders/PostSeeder.php
+			use App\Models\Post;
+			use Illuminate\Database\Seeder;
+
+			class PostSeeder extends Seeder
+			{
+    				public function run()
+    				{
+        				Post::factory()->count(50)->create();
+    				}
+			}
+
+4) to run factory : php artisan db:seed --class=PostSeeder   // factory run through seeder
+
+
+1. Accessors:
+	An accessor allows you to format Eloquent model attributes when retrieving them.(a function write in model to get a field in model/from DB as thy specified in this function
+
+eg;-
+	class User extends Model
+	{
+   		 // Accessor for 'full_name' attribute(a fied i his model, we need every ime we fetch ,it should show/send first letter capitel
+
+    		public function getFullNameAttribute($value)
+    		{
+        		return ucwords($value); // Capitalizes the first letter of each word
+   		 }
+	}
+
+calling above in controller function
+
+	$user = User::find(1);
+	echo $user->full_name; // Output: "John Doe"
+
+
+
+2. Mutators:
+	A mutator allows you to modify an Eloquent model attribute's value before it is set or saved to the database.(a function write in model to set a field in model/to save into DB as 	they specified in this function)
+
+eg:-
+
+	class User extends Model
+	{
+    		// Mutator for 'full_name' attribute
+    		public function setFullNameAttribute($value)
+   		 {
+        		$this->attributes['full_name'] = strtolower($value); // Convert to lowercase
+    		}
+	}
+
+
+
+call above function in controller
+
+		$user = new User();
+		$user->full_name = "John Doe";
+		$user->save();        // In the database, the full_name will be saved as "john doe"
+		
+			
+	
+	
+
+
+	
+
+
+
