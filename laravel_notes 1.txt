@@ -234,8 +234,61 @@ call above function in controller
 		$user = new User();
 		$user->full_name = "John Doe";
 		$user->save();        // In the database, the full_name will be saved as "john doe"
+
+
+
+
+
+METHOD TO SAVE
+_______________
+
+1) create()
+____________
+
+
+class User extends Model
+{
+    protected $fillable = ['name', 'email', 'password'];
+}
+
+then
+
+$user = User::create([
+    'name' => 'Jane Doe',
+    'email' => 'janedoe@example.com',
+    'password' => Hash::make('password')
+]);
+		OR
+
 		
-			
+$user = User::firstOrCreate(
+    ['email' => 'johndoe@example.com'], // Search for a user with this email
+    ['name' => 'John Doe', 'password' => Hash::make('password')] // If not found, create a new one with these values
+);
+
+
+
+after saving data we redirect to a page i controller caa like
+
+	return redirect()->route('home')->with('success', 'Record created successfully!'); // tis msg snd through session
+
+
+call his message in home blade
+
+	@if(session('success'))
+    		<div class="alert alert-success">
+        		{{ session('success') }}
+    		</div>
+	@endif
+
+	@if(session('error'))
+    		<div class="alert alert-danger">
+        		{{ session('error') }}
+    		</div>
+	@endif
+
+
+	
 	
 	
 
