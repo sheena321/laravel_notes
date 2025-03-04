@@ -1,0 +1,101 @@
+Pagination
+________________
+
+
+In your controller, use the paginate() method when fetching data from a model:
+
+php
+Copy
+Edit
+public function index()
+{
+    $users = User::paginate(10); // Fetch 10 users per page
+    return view('users.index', compact('users'));
+}
+2. Displaying Pagination in Blade
+In your Blade view (users/index.blade.php), you can loop through the paginated data:
+
+blade
+Copy
+Edit
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+    </tr>
+    @foreach ($users as $user)
+        <tr>
+            <td>{{ $user->id }}</td>
+            <td>{{ $user->name }}</td>
+            <td>{{ $user->email }}</td>
+        </tr>
+    @endforeach
+</table>
+
+<!-- Pagination Links -->
+{{ $users->links() }}
+{{ $users->links() }} generates pagination links.
+
+
+SESSION
+__________
+
+
+
+ Storing Session Data
+______________________
+
+session(['user_name' => 'John Doe']);  // Store value
+session()->put('user_email', 'john@example.com');  // Another way
+
+
+*  You can also store flash data (data available for only one request):
+
+
+	session()->flash('message', 'This is a flash message!');
+
+
+Retrieving Session Data
+___________________________
+
+$name = session('user_name'); // Returns 'John Doe'
+
+Or use the get() method:
+
+	$email = session()->get('user_email', 'default@example.com'); // Returns default if not set
+For flash data:
+
+$message = session()->get('message'); // Only available for one request
+
+
+4. Checking if a Session Key Exists
+____________________________________
+
+	if (session()->has('user_name')) {
+    		echo "User is logged in.";
+	}
+
+or checking missing key
+
+if (session()->missing('user_email')) {
+    echo "User email is not set.";
+}
+
+🔹 5. Deleting Session Data
+
+	Remove a single session key:
+	session()->forget('user_name');
+
+	Remove multiple session keys:
+	session()->forget(['user_name', 'user_email']);
+
+	Destroy the entire session:
+	session()->flush();
+
+
+
+
+
+
+

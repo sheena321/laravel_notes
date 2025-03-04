@@ -1,0 +1,145 @@
+Authentication
+_______________________
+
+route:
+	Route::get('logIn', [App\Http\Controllers\loginController::class, 'login'])->name('login');
+	Route::post('loginUser',[App\Http\controllers\loginController::class,'logingUser'])->name('loginUser');
+
+
+blade:
+
+	@extends('customer.master')
+  	@section('title', 'Larael Crud')
+  	@section('content')
+  	<form action="{{ route('loginUser') }}" method="post">
+   	 @csrf
+    	<h1>@if(session()->has('error')) {{session()->get('error')}} @endif</h1>
+  	<div class="form-group">
+    		<label for="exampleInputEmail1">Email address</label>
+    		<input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp">
+    		<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+  	</div>
+  	<div class="form-group">
+    		<label for="exampleInputPassword1">Password</label>
+    		<input type="password" class="form-control" id="password" name="password">
+  	</div>
+  	<div class="form-group form-check">
+    		<input type="checkbox" class="form-check-input" id="remember" name="remember">
+    		<label class="form-check-label" for="exampleCheck1">Rememberpassword</label>
+  	</div>
+  	<button type="submit" class="btn btn-primary">Submit</button>
+	</form>
+
+	@endsection
+
+controller:
+
+	class loginController extends Controller
+{
+    public function login(){
+        return view('login');
+    }
+    public function logingUser(Request $request){
+        $request->validate([
+            'email' => 'required',
+            'password' => 'required',
+        ]);        
+        $credentials = $request->only('email', 'password');
+        // $customer=Customer::where('email','kesu@kk.com')->first();
+        // info($credentials);
+        // info(Auth::attempt($credentials));
+        // info([
+        //     'Entered Password' => $request->password,
+        //     'Hashed Password in DB' => $customer->password,
+        //     'Password Match' => Hash::check($request->password, $customer->password)
+        // ]);
+    
+        if (Auth::attempt($credentials)) {   // seecond parameter is for remember me, by default
+                                                                         // it is false, store password in cookie upto wee manuallylogout
+            return redirect()->route('customer.signin');
+            
+        }
+        else{
+            return redirect()->route('login')->with('error', 'Login details are not valid');
+        }
+       
+    }
+    public function logout(){
+        Auth::logout();   //auth()->logout();
+        return redirect()->route('loginUser');
+    }
+
+   
+}
+
+_____________________________________________________________________________________________________________________________
+
+
+
+Method	Purpose
+Auth::attempt($credentials)----->	Logs in a user with given email & password
+Auth::check()-------->	Checks if a user is already logged in
+eg:-
+
+
+	public function customeredit($id){
+        if(Auth()->check()){
+        $customer = Customer::find($id);
+        $edit = true;
+        return view('customer.sign_in',compact('customer','edit'));
+    }else{
+            return redirect()->route('login')->with('error', 'Login details are not valid');
+    
+        }
+    }
+//here only allow editing when a user logedin else goto login page
+
+instead of usong Auth::check() ,can use middleware
+
+create a middleware:   php artisan make:middleware userLoginCheck
+
+1) insde the middlewae(userLoginCheck) do the Auth::check()
+
+
+	public function handle(Request $request, Closure $next)
+    {
+        if(auth()->check()){
+
+            return $next($request);
+        }else{
+            
+            return redirect()->route('login');
+        }
+        
+    }
+2) Regiter this middlware in Kernal 
+	
+	 protected $routeMiddleware = [
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'user_auth' => \App\Http\Middleware\CheckUserLoggedIn::class,          <--- this the middle ware we created now -->
+    ];
+
+
+Grouping of middleware
+_________________________
+
+Route::group(['middleware'=>'user_auth'],function(){
+
+    Route::post('sign-in-save',[App\Http\Controllers\formCController::class, 'customercreate'])->name('customer.create');
+    Route::get('customer/edit/{id}',[App\Http\Controllers\formCController::class, 'customeredit'])->name('customer.edit');
+    Route::get('customer/delete/{id}',[App\Http\Controllers\formCController::class, 'customerdelete'])->name('customer.delete');
+    Route::post('customer/update/{id}',[App\Http\Controllers\formCController::class, 'customerupdate'])->name('customer.update');
+});
+
+	
+
+
+
