@@ -129,4 +129,19 @@ e)Has Many Through Relationship
 		{
     			return $this->hasManyThrough(Post::class, User::class);
 		}
+
+
+MUTATOR
+________________
+
+		class User extends Model {
+    			protected $appends = ['full_name']; // snake_case
+
+    			public function getFullNameAttribute() { // PascalCase + "Attribute"
+        		return $this->first_name . ' ' . $this->last_name;
+    			}
+		}
+
+	Call in blade::     {{ $user->full_name }} <!-- Calls getFullNameAttribute() -->
+
 	- 

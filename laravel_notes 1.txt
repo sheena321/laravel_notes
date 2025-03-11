@@ -58,8 +58,8 @@ OR
 		
 		Route::group(['prefix'=>'admin','as'=>'user.'],function(){
 
-			Route::get('profile','ProfileController@show')->name(profile);
-			Route::get('profile1','ProfileController@show1')->name(profile1);
+			Route::get('profile','ProfileController@show')->name('profile');
+			Route::get('profile1','ProfileController@show1')->name('profile1');
 
 		})	//here the url like http://127.0.0.1:8000/admin/profile   and name=user.profile
 

@@ -1,0 +1,32 @@
+Mail
+_____________
+
+to create a mail send Mail in laravel
+
+1)php artisan make:mail UserCreatedMail    (this createa new Mail folder in app folder,ie app->mail->UserCreatedMai.php
+
+2)In UserCreatedMai.php 
+
+ public function build()
+    {
+        return $this->view('mail.usercreatdMail_blade_formate');  // view of blade 'usercreatdMail_blade_formate', i.e. resources->view->											     sercreatdMail_blade_formate.blade.php,this blade has the html structure of mail
+    }
+
+3) we an send mail(if we need to send it aftr creating a customer,the in controller write in create() function
+
+	$customer = new Customer();
+        $customer->name = 'fjhadkf'; //$request->get('name');
+        $customer->email = $request->get('email');
+        $customer->password = $request->get('password');
+        $customer->address1 = $request->get('add1');
+        $customer->address2 = $request->get('add1');
+        // dd($customer);
+        $customer->save();
+        Mail::to($customer->email)->send(new UserCreatedMail()); // this call mail class and in its build() define which blade contain message format
+
+OR
+
+	 Mail::to($customer->email)
+        ->cc('abc@mail.com')
+        ->bcc('xyz@mail.com')
+        ->send((new UserCreatedMail($customer))->subject('Welcome to Our Service!'));
